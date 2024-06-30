@@ -6,23 +6,27 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Example'
-copyright = 'workshop participant'
-author = 'workshop participant'
-release = '0.1'
-
+project = 'Techniques for On Device AI'
+copyright = '2024, Akhil Kumar Donka'
+author = 'Akhil Kumar Donka'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['myst_parser']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.duration',
+    'sphinx_rtd_theme',
+    'sphinx.ext.napoleon',
+    "nbsphinx",
+    "sphinx_gallery.load_style",
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = []
