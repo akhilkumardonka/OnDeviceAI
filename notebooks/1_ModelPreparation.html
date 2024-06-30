@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preparing model towards deployment &mdash; Techniques for On Device AI  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Jupyter Notebooks!" href="../jupyter_notebooks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Techniques for On Device AI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../jupyter_notebooks.html">Jupyter Notebooks!</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../jupyter_notebooks.html#coding-notebooks">Coding Notebooks</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Preparing model towards deployment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Techniques for On Device AI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../jupyter_notebooks.html">Jupyter Notebooks!</a></li>
+      <li class="breadcrumb-item active">Preparing model towards deployment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/1_ModelPreparation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Preparing-model-towards-deployment">
+<h1>Preparing model towards deployment<a class="headerlink" href="#Preparing-model-towards-deployment" title="Link to this heading"></a></h1>
+<p>This is carried out after developments &amp; validation phase</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Necessary imports</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torchinfo</span> <span class="kn">import</span> <span class="n">summary</span>
+<span class="kn">from</span> <span class="nn">qai_hub_models.models.ffnet_40s</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># getting summary</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">()</span>
+<span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">model</span><span class="p">,</span>
+  <span class="n">input_size</span><span class="o">=</span><span class="n">input_shape</span><span class="p">,</span>
+  <span class="n">col_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num_params&quot;</span><span class="p">,</span> <span class="s2">&quot;mult_adds&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Downloading data at https://github.com/quic/aimet-model-zoo/releases/download/torch_segmentation_ffnet/ffnet40S_dBBB_cityscapes_state_dict_quarts.pth to /root/.qaihm/models/ffnet/v1/ffnet40S/ffnet40S_dBBB_cityscapes_state_dict_quarts.pth...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 55.8M/55.8M [00:01&lt;00:00, 50.1MB/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Done
+cityscapes_segmentation requires repository https://github.com/Qualcomm-AI-research/FFNet.git . Ok to clone? [Y/n] y
+Cloning https://github.com/Qualcomm-AI-research/FFNet.git to /root/.qaihm/models/cityscapes_segmentation/v2/Qualcomm-AI-research_FFNet_git...
+Done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/scipy/__init__.py:146: UserWarning: A NumPy version &gt;=1.17.3 and &lt;1.25.0 is required for this version of SciPy (detected version 1.25.2
+  warnings.warn(f&#34;A NumPy version &gt;={np_minversion} and &lt;{np_maxversion}&#34;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loading pretrained model state dict from /root/.qaihm/models/ffnet/v1/ffnet40S/ffnet40S_dBBB_cityscapes_state_dict_quarts.pth
+Initializing ffnnet40S_dBBB_mobile weights
+==============================================================================================================
+Layer (type:depth-idx)                                       Param #                   Mult-Adds
+==============================================================================================================
+FFNet40S                                                     --                        --
+├─FFNet: 1-1                                                 --                        --
+│    └─ResNetS: 2-1                                          --                        --
+│    │    └─Conv2d: 3-1                                      864                       452,984,832
+│    │    └─BatchNorm2d: 3-2                                 64                        64
+│    │    └─ReLU: 3-3                                        --                        --
+│    │    └─Conv2d: 3-4                                      18,432                    2,415,919,104
+│    │    └─BatchNorm2d: 3-5                                 128                       128
+│    │    └─ReLU: 3-6                                        --                        --
+│    │    └─Sequential: 3-7                                  300,160                   9,797,895,296
+│    │    └─Sequential: 3-8                                  1,411,840                 11,542,727,424
+│    │    └─Sequential: 3-9                                  3,900,288                 7,977,571,200
+│    │    └─Sequential: 3-10                                 7,071,360                 3,617,592,960
+│    └─FFNetUpHead: 2-2                                      --                        --
+│    │    └─Sequential: 3-11                                 1,208,147                 26,571,541,312
+==============================================================================================================
+Total params: 13,911,283
+Trainable params: 13,911,283
+Non-trainable params: 0
+Total mult-adds (G): 62.38
+==============================================================================================================
+Input size (MB): 25.17
+Forward/backward pass size (MB): 1269.30
+Params size (MB): 55.65
+Estimated Total Size (MB): 1350.11
+==============================================================================================================
+</pre></div></div>
+</div>
+<ol class="arabic simple">
+<li><p>Capturing model graph</p></li>
+</ol>
+<p><strong>PyTorch JIT</strong> basically reduces python overhead and fuses consecutive operations (like ReLU) to corresponding previous layers so as to come up with an graph for efficient computation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+<span class="n">example_inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+<span class="n">traced_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">example_inputs</span><span class="p">)</span>
+<span class="n">traced_model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+FFNet40S(
+  original_name=FFNet40S
+  (model): FFNet(
+    original_name=FFNet
+    (backbone_model): ResNetS(
+      original_name=ResNetS
+      (conv0): Conv2d(original_name=Conv2d)
+      (bn0): BatchNorm2d(original_name=BatchNorm2d)
+      (relu0): ReLU(original_name=ReLU)
+      (conv1): Conv2d(original_name=Conv2d)
+      (bn1): BatchNorm2d(original_name=BatchNorm2d)
+      (relu1): ReLU(original_name=ReLU)
+      (layer1): Sequential(
+        original_name=Sequential
+        (0): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+          (downsample): Sequential(
+            original_name=Sequential
+            (0): Conv2d(original_name=Conv2d)
+            (1): BatchNorm2d(original_name=BatchNorm2d)
+          )
+        )
+        (1): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (2): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (3): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+      )
+      (layer2): Sequential(
+        original_name=Sequential
+        (0): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+          (downsample): Sequential(
+            original_name=Sequential
+            (0): Conv2d(original_name=Conv2d)
+            (1): BatchNorm2d(original_name=BatchNorm2d)
+          )
+        )
+        (1): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (2): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (3): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (4): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+      )
+      (layer3): Sequential(
+        original_name=Sequential
+        (0): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+          (downsample): Sequential(
+            original_name=Sequential
+            (0): Conv2d(original_name=Conv2d)
+            (1): BatchNorm2d(original_name=BatchNorm2d)
+          )
+        )
+        (1): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (2): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (3): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (4): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (5): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+      )
+      (layer4): Sequential(
+        original_name=Sequential
+        (0): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+          (downsample): Sequential(
+            original_name=Sequential
+            (0): Conv2d(original_name=Conv2d)
+            (1): BatchNorm2d(original_name=BatchNorm2d)
+          )
+        )
+        (1): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (2): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+        (3): BasicBlock(
+          original_name=BasicBlock
+          (conv1): Conv2d(original_name=Conv2d)
+          (bn1): BatchNorm2d(original_name=BatchNorm2d)
+          (conv2): Conv2d(original_name=Conv2d)
+          (bn2): BatchNorm2d(original_name=BatchNorm2d)
+          (relu): ReLU(original_name=ReLU)
+        )
+      )
+    )
+    (head): FFNetUpHead(
+      original_name=FFNetUpHead
+      (layers): Sequential(
+        original_name=Sequential
+        (0): AdapterConv(
+          original_name=AdapterConv
+          (adapter_conv): ModuleList(
+            original_name=ModuleList
+            (0): ConvBNReLU(
+              original_name=ConvBNReLU
+              (layers): Sequential(
+                original_name=Sequential
+                (0): Conv2d(original_name=Conv2d)
+                (1): BatchNorm2d(original_name=BatchNorm2d)
+                (2): ReLU(original_name=ReLU)
+              )
+            )
+            (1): ConvBNReLU(
+              original_name=ConvBNReLU
+              (layers): Sequential(
+                original_name=Sequential
+                (0): Conv2d(original_name=Conv2d)
+                (1): BatchNorm2d(original_name=BatchNorm2d)
+                (2): ReLU(original_name=ReLU)
+              )
+            )
+            (2): ConvBNReLU(
+              original_name=ConvBNReLU
+              (layers): Sequential(
+                original_name=Sequential
+                (0): Conv2d(original_name=Conv2d)
+                (1): BatchNorm2d(original_name=BatchNorm2d)
+                (2): ReLU(original_name=ReLU)
+              )
+            )
+            (3): ConvBNReLU(
+              original_name=ConvBNReLU
+              (layers): Sequential(
+                original_name=Sequential
+                (0): Conv2d(original_name=Conv2d)
+                (1): BatchNorm2d(original_name=BatchNorm2d)
+                (2): ReLU(original_name=ReLU)
+              )
+            )
+          )
+        )
+        (1): UpBranch(
+          original_name=UpBranch
+          (fam_32_sm): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_32_up): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_16_sm): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_16_up): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_8_sm): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_8_up): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+          (fam_4): ConvBNReLU(
+            original_name=ConvBNReLU
+            (layers): Sequential(
+              original_name=Sequential
+              (0): Conv2d(original_name=Conv2d)
+              (1): BatchNorm2d(original_name=BatchNorm2d)
+              (2): ReLU(original_name=ReLU)
+            )
+          )
+        )
+        (2): UpsampleCat(original_name=UpsampleCat)
+        (3): SegmentationHead_NoSigmoid_3x3(
+          original_name=SegmentationHead_NoSigmoid_3x3
+          (last_layer): Sequential(
+            original_name=Sequential
+            (0): Conv2d(original_name=Conv2d)
+            (1): BatchNorm2d(original_name=BatchNorm2d)
+            (2): ReLU(original_name=ReLU)
+            (3): Conv2d(original_name=Conv2d)
+          )
+        )
+      )
+    )
+  )
+)
+</pre></div></div>
+</div>
+<p>Follow up steps are :</p>
+<ol class="arabic simple" start="2">
+<li><p>Compile traced_model for target device with target runtime environment (eg. <strong>ONNX</strong> for Windows, <strong>Tflite</strong> for Android, <strong>Qualcomm AI Engine</strong> for embedded devices)</p></li>
+<li><p>Profile performance in terms of latency/fps on device and on target compute (like <strong>CPU</strong> for general purpose computations, <strong>GPU</strong> for parallel computations &amp; <strong>NPU</strong> for efficient neural network computations but less flexible than CPU &amp; GPU).</p></li>
+<li><p>Perform on device validation. This involves inferencing on test data on target device and comparing predictions with that of predictions in development environment. We usually monitor the delta between on device prediction and development PC prediction which is called <strong>Peak Signal To Noise Ratio (PSNR)</strong></p></li>
+<li><p>Download model and deploy on target device</p></li>
+</ol>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../jupyter_notebooks.html" class="btn btn-neutral float-left" title="Jupyter Notebooks!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Akhil Kumar Donka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
